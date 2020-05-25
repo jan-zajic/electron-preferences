@@ -91,6 +91,18 @@ class ElectronPreferences extends EventEmitter2 {
             event.returnValue = null;
         });
 
+        ipcMain.on('buttonClicked', (event, message) => {
+            this.broadcastButtonClick(message);
+        });
+
+        ipcMain.on('readPreferences', () => {
+            this.preferences = fs.readJsonSync(this.dataStore, {
+                'throws': false
+            });
+
+            webContents.getAllWebContents().forEach(webContent => webContent.send('changeProps'))
+        });
+
         if (_.isFunction(options.afterLoad)) {
             options.afterLoad(this);
         }
@@ -119,6 +131,10 @@ class ElectronPreferences extends EventEmitter2 {
 
         this._preferences = value;
 
+    }
+
+    get childBrowserWindowOverrides() {
+        return this.options.childBrowserWindowOverrides || {};
     }
 
     save() {
@@ -158,9 +174,17 @@ class ElectronPreferences extends EventEmitter2 {
 
     }
 
+    broadcastButtonClick(message) {
+        webContents.getAllWebContents()
+            .forEach((wc) => {
+                wc.send(message);
+            })
+    }
+
     show() {
 
         if (this.prefsWindow) {
+            this.prefsWindow.focus();
             return;
         }
 
@@ -208,6 +232,44 @@ class ElectronPreferences extends EventEmitter2 {
             this.prefsWindow = null;
         });
 
+
+        this.prefsWindow.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
+            event.preventDefault();
+            let win;
+
+            const currPos = this.prefsWindow.getPosition();
+
+            const offset = () => {
+                if(this.childBrowserWindowOverrides.offset) {
+                    return {
+                        x: currPos[0] + this.childBrowserWindowOverrides.offset,
+                        y: currPos[1] + this.childBrowserWindowOverrides.offset
+                    }
+                }
+                return {};
+            };
+
+            const resize = () => {
+                if(this.childBrowserWindowOverrides.resizable === true) {
+                    return {
+                        maxHeight: undefined,
+                        maxWidth: undefined,
+                        resizable: true
+                    }
+                }
+                return {};
+            };
+
+            win = new BrowserWindow(Object.assign(options, {
+                ...resize(),
+                ...offset(),
+                ...this.childBrowserWindowOverrides
+            }));
+
+            win.loadURL(url);
+
+            event.newGuest = win;
+        });
 
     }
 

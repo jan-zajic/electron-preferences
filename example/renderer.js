@@ -13,3 +13,12 @@ ipcRenderer.on('preferencesUpdated', (e, preferences) => {
     console.log('Preferences were updated', preferences);
     prefsEl.innerHTML = JSON.stringify(preferences, null, 4);
 });
+
+ipcRenderer.on('applyChanges', () => {
+    ipcRenderer.send('applyChangesClick');
+});
+
+ipcRenderer.on('buttonClickPropChange', () => {
+    ipcRenderer.send('changePreferencesValue');
+    ipcRenderer.send('readPreferences')
+});

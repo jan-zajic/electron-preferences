@@ -4,7 +4,6 @@ const electron = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
-const os = require('os');
 const url = require('url');
 const preferences = require('./preferences');
 
@@ -19,7 +18,10 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         'width': 1200,
         'height': 700,
-        'accept-first-mouse': true
+        'accept-first-mouse': true,
+        webPreferences: {
+            nodeIntegration: true
+        }
     });
 
     mainWindow.loadURL(url.format({
@@ -36,7 +38,18 @@ function createWindow() {
 
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+    createWindow();
+
+    electron.ipcMain.on('applyChangesClick', () => {
+        app.relaunch();
+        app.quit();
+    });
+
+    electron.ipcMain.on('changePreferencesValue', () => {
+        preferences.value('space.random_number', Math.round(Math.random() * 100) )
+    });
+});
 
 app.on('window-all-closed', function() {
     if (process.platform !== 'darwin') {

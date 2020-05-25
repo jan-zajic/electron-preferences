@@ -7,10 +7,29 @@ const os = require('os');
 const ElectronPreferences = require('../');
 
 const preferences = new ElectronPreferences({
+    browserWindowOverrides: {
+        icon: path.join(__dirname, 'example.png'),
+        title: 'Custom Title'
+    },
+    childBrowserWindowOverrides: {
+        offset: 20,
+        resizable: true,
+        maximizable: true
+    },
     'dataStore': path.resolve(__dirname, 'preferences.json'),
     'defaults': {
         'notes': {
             'folder': path.resolve(os.homedir(), 'Notes')
+        },
+        'folderVariations': {
+            'customButtonLabel': path.resolve(app.getPath('downloads')),
+            'customPrefix': path.resolve(app.getPath('downloads')),
+            'noPrefix': path.resolve(app.getPath('downloads'))
+        },
+        'fileVariations': {
+            'customButtonLabel': path.resolve(app.getPath('downloads'), 'file.docx'),
+            'customPrefix': path.resolve(app.getPath('downloads'), 'file.docx'),
+            'noPrefix': path.resolve(app.getPath('downloads'), 'file.docx'),
         },
         'markdown': {
             'auto_format_links': true,
@@ -68,6 +87,15 @@ const preferences = new ElectronPreferences({
                                     {'label': 'Unspecified', 'value': 'unspecified'},
                                 ],
                                 'help': 'What is your gender?'
+                            },
+                            {
+                                'label': 'Custom Default',
+                                'key': 'custom',
+                                'type': 'dropdown',
+                                'default': 'Custom',
+                                'options': [
+                                    {'label': 'Option 1', 'value': 'option1'},
+                                ]
                             },
                             {
                                 'label': 'Age',
@@ -131,7 +159,12 @@ const preferences = new ElectronPreferences({
                             {
                                 'heading': 'Important Message',
                                 'content': '<p>The quick brown fox jumps over the long white fence. The quick brown fox jumps over the long white fence. The quick brown fox jumps over the long white fence. The quick brown fox jumps over the long white fence.</p>',
+                                'type': 'message'
+                            },
+                            {
+                                'content': '<p>Heading can be hidden.</p>',
                                 'type': 'message',
+                                'hideHeading': 'true'
                             }
                         ]
                     }
@@ -154,6 +187,19 @@ const preferences = new ElectronPreferences({
                                 'help': 'What is your phone number?'
                             },
                             {
+                                'label': 'Random Number',
+                                'key': 'random_number',
+                                'type': 'text'
+                            },
+                            {
+                                'buttonLabel': 'Generate random number',
+                                'key': 'propsChangeButton',
+                                'type': 'button',
+                                'channel': 'buttonClickPropChange',
+                                'help': 'Refresh react components',
+                                'hideLabel': 'true'
+                            },
+                            {
                                 'label': "Foo or Bar?",
                                 'key': 'foobar',
                                 'type': 'radio',
@@ -169,11 +215,99 @@ const preferences = new ElectronPreferences({
                                 'key': 'shortcut',
                                 'type': 'accelerator',
                                 'help': 'A keyboard shortcut'
+                            },
+                            {
+                                'heading': 'Child Window',
+                                'content': 'Child Window options can be overridden: <a href="https://www.duckduckgo.com" target="_blank">duckduckgo.com</a>',
+                                'type': 'message'
+                            },
+                            {
+                                'label': 'Ipc button',
+                                'key': 'ipcButton',
+                                'type': 'button',
+                                'channel': 'applyChanges',
+                                'buttonLabel': 'Restart to apply changes',
+                                'help': 'This button sends on a custom ipc channel'
+                            },
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            'id': 'folderVariations',
+            'label': 'Folder Variations',
+            'icon': 'folder-15',
+            'form': {
+                'groups': [
+                    {
+                        'label': 'Folder Variations',
+                        'fields': [
+                            {
+                                'label': 'Folder with Custom Button Label',
+                                'key': 'customButtonLabel',
+                                'type': 'directory',
+                                'buttonLabel': ['Custom Label', 'Another Custom Label']
+                            },
+                            {
+                                'label': 'Folder with Custom Prefix',
+                                'key': 'customPrefix',
+                                'type': 'directory',
+                                'prefix': 'Custom'
+                            },
+                            {
+                                'label': 'Folder without Prefix',
+                                'key': 'noPrefix',
+                                'type': 'directory',
+                                'hidePrefix':'true'
                             }
                         ]
                     }
                 ]
             }
+        },
+        {
+            'id': 'fileVariations',
+            'label': 'File Variations',
+            'icon': 'single-folded-content',
+            'form': {
+                'groups': [
+                    {
+                        'label': 'File Variations',
+                        'fields': [
+                            {
+                                'label': 'File with Custom Button Label',
+                                'key': 'customButtonLabel',
+                                'type': 'file',
+                                'buttonLabel': ['Custom Label', 'Another Custom Label']
+                            },
+                            {
+                                'label': 'File with Custom Prefix',
+                                'key': 'customPrefix',
+                                'type': 'file',
+                                'prefix': 'Custom'
+                            },
+                            {
+                                'label': 'File without Prefix',
+                                'key': 'noPrefix',
+                                'type': 'file',
+                                'hidePrefix':'true',
+                                'filter': {name: 'Word document', extensions: ['docx', 'doc']},
+                                'help': 'File name and extension can be specified and will be the only thing showing up in this dialog'
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            'id': 'customIcon',
+            'label': 'Custom Icon',
+            'icon': 'electron-preferences/example/example.png',
+        },
+        {
+            'id': 'noIcon',
+            'label': 'No Icon',
         }
     ]
 });
