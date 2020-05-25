@@ -1,7 +1,7 @@
 'use strict';
 
 const electron = require('electron');
-const { app, BrowserWindow, ipcMain, webContents } = electron;
+const { app, BrowserWindow, ipcMain, webContents, Menu } = electron;
 const path = require('path');
 const url = require('url');
 const fs = require('fs-extra');
@@ -217,7 +217,7 @@ class ElectronPreferences extends EventEmitter2 {
         this.prefsWindow = new BrowserWindow(browserWindowOpts);
 
         if (this.options.menuBar) {
-            this.prefsWindow.setMenu(this.options.menuBar);
+            this.prefsWindow.setMenu(Menu.buildFromTemplate(this.options.menuBar));
         } else {
             this.prefsWindow.removeMenu();
         }

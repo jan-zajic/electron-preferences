@@ -16,6 +16,12 @@ const preferences = new ElectronPreferences({
         resizable: true,
         maximizable: true
     },
+    menuBar: [{
+        label: 'View',
+        submenu: [
+            {role: 'toggledevtools'}
+        ]
+    }],
     'dataStore': path.resolve(__dirname, 'preferences.json'),
     'defaults': {
         'notes': {
